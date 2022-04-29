@@ -7,7 +7,7 @@ import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output
 import plotly.graph_objects as go
 
-df = pd.read_csv('total_data.csv')
+df = pd.read_csv('../data/test_data.csv')
 column_names = df.columns
 
 app = Dash(

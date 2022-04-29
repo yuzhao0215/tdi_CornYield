@@ -14,16 +14,89 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.service import Service
 
+from ediblepickle import checkpoint
+
+
+@checkpoint(
+    key=lambda args, kwargs: args[-1],
+    work_dir='./cache/every_day', refresh=False)
+def get_df_day(url_, driver_, row_data_dic_, cache_name_):
+    driver_.get(url_)
+
+    table_element = WebDriverWait(driver_, 60). \
+        until(
+        EC.
+            visibility_of_all_elements_located((By.XPATH, '//tr[@class="ng-star-inserted"]')))
+
+    page_source = driver_.page_source
+
+    soup = BeautifulSoup(page_source, 'lxml')
+
+    tbody_elements = soup.findAll('tbody', class_='ng-star-inserted')
+    print('lengh of tbodys: {}'.format(len(tbody_elements)))
+
+    for i, el in enumerate(tbody_elements):
+        row_elements = el.findAll('tr')
+
+        for rw in row_elements:
+            attri_name = rw.find('th').text
+
+            # remove parenthesis
+            attri_name = re.sub(r"\(.*\)", '', attri_name)
+
+            # remove spaces at left and right
+            attri_name = attri_name.strip()
+
+            if attri_name in row_data_dic_:
+                row_data_dic_[attri_name] = rw.find('td', class_='ng-star-inserted').text
+
+    df = pd.DataFrame(row_data_dic_, index=[0])
+    return df
+
+
+@checkpoint(
+    key=lambda args, kwargs: '_'.join([args[1], args[2], args[3].strftime("%m-%d-%Y"), args[4].strftime("%m-%d-%Y")]),
+    work_dir='./cache', refresh=False)
+def get_df_time_range(base_url, state_, city, start_day, end_day, driver_, sleeping_seconds=5):
+    df_prep = pd.DataFrame()
+
+    columns = ['date', 'High Temp', 'Low Temp', 'Day Average Temp',
+               'Precipitation', 'Dew Point', 'High',
+               'Low', 'Average', 'Max Wind Speed', 'Visibility', 'Sea Level Pressure',
+               'Actual Time']
+
+    while start_day != end_day:
+        row_data = {c: np.nan for c in columns}
+        row_data['date'] = start_day.strftime("%m/%d/%Y")
+        # names = ['date']
+        # values = [start_day.strftime("%m/%d/%Y")]
+
+        print('gathering data from: ', start_day)
+        formatted_lookup_URL = base_url.format(state_, city, start_day.year, start_day.month, start_day.day)
+
+        day_cache_name = '_'.join([state_, city, start_day.strftime("%m-%d-%Y")])
+        temp_df = get_df_day(formatted_lookup_URL, driver_, row_data, day_cache_name)
+        df_prep = pd.concat([
+            df_prep,
+            temp_df
+        ], ignore_index=True)
+
+        start_day += timedelta(days=1)
+        # print(formatted_lookup_URL)
+        time.sleep(sleeping_seconds)
+    return df_prep
+
 
 # Use .format(YYYY, M, D)
 lookup_URL = 'https://www.wunderground.com/history/daily/us/{}/{}/date/{}-{}-{}'
-start_date = date(1978, 1, 1)
-end_date = start_date + pd.Timedelta(days=3)
+start_date = date(1980, 1, 1)
+# end_date = start_date + pd.Timedelta(days=2)
+end_date = date(1981, 1, 1)
 
 state = 'il'
 county = 'urbana'
 
-df_prep = pd.DataFrame()
+# df_prep = pd.DataFrame()
 
 options = webdriver.ChromeOptions()
 options.add_argument('headless')
@@ -32,53 +105,8 @@ options.add_argument('--incognito')
 
 driver = webdriver.Chrome(service=Service('./chromedriver.exe'), options=options)
 
-while start_date != end_date:
-    print('gathering data from: ', start_date)
+df = get_df_time_range(lookup_URL, state, county, start_date, end_date, driver)
 
-    formatted_lookup_URL = lookup_URL.format(state,
-                                             county,
-                                             start_date.year,
-                                             start_date.month,
-                                             start_date.day)
-
-    driver.get(formatted_lookup_URL)
-
-    table_element = WebDriverWait(driver, 60).\
-        until(
-        EC.
-            visibility_of_all_elements_located((By.XPATH, '//tr[@class="ng-star-inserted"]')))
-
-    page_source = driver.page_source
-
-    soup = BeautifulSoup(page_source, 'lxml')
-
-    tbody_elements = soup.findAll('tbody', class_='ng-star-inserted')
-    print('lengh of tbodys: {}'.format(len(tbody_elements)))
-
-    names = ['date']
-    values = [start_date.strftime("%m/%d/%Y")]
-
-    for i, el in enumerate(tbody_elements):
-        row_elements = el.findAll('tr')
-
-        for rw in row_elements:
-            attri_name = rw.find('th').text
-
-            if re.match(r".*(twilight.*)|(.*moon.*)", attri_name, re.IGNORECASE):
-                continue
-
-            attri_val = rw.find('td', class_='ng-star-inserted').text
-
-            names.append(attri_name)
-            values.append(attri_val)
-
-    df_prep = pd.concat([
-        df_prep,
-        pd.DataFrame([values], columns=names)
-    ], ignore_index=True)
- 
-    start_date += timedelta(days=1)
-    # print(formatted_lookup_URL)
-    time.sleep(10)
-
-print(df_prep)
+print(df.columns)
+print(df.values)
+print(df.values.shape)
