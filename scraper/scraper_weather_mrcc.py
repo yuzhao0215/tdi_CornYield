@@ -28,7 +28,7 @@ from ediblepickle import checkpoint
 @checkpoint(
     key=lambda args, kwargs: '_'.join(
         [args[0], *args[1]['sids'], args[3].strftime("%Y-%m-%d"), args[4].strftime("%Y-%m-%d")]),
-    work_dir='./cache/station_weather', refresh=False)
+    work_dir='C:/Users/45463/Desktop/tdi_corn_yield/tdi_CornYield/scraper/cache/station_weather', refresh=False)
 def get_station_weather(county_fips_, station_meta_, url_data_, start_day_, end_day_, elem_list_):
     sid_ = station_meta_['sids'][0]
     sid_list = station_meta_['sids']
@@ -84,10 +84,10 @@ def get_station_weather(county_fips_, station_meta_, url_data_, start_day_, end_
 
 @checkpoint(
     key=lambda args, kwargs: '_'.join([args[0], args[2].strftime("%Y-%m-%d"), args[3].strftime("%Y-%m-%d")]),
-    work_dir='./cache/county_weather', refresh=False)
+    work_dir='C:/Users/45463/Desktop/tdi_corn_yield/tdi_CornYield/scraper/cache/county_weather', refresh=False)
 def get_county_weather(county_fips, url_meta_, start_day_, end_day_, elems_list_, meta_list_):
-    start_day_str_ = start_day.strftime("%Y-%m-%d")
-    end_day_str_ = end_day.strftime("%Y-%m-%d")
+    start_day_str_ = start_day_.strftime("%Y-%m-%d")
+    end_day_str_ = end_day_.strftime("%Y-%m-%d")
 
     params_meta = dict(county=county_fips, output='json',
                        elems=','.join(elems_list_),
