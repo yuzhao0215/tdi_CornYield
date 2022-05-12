@@ -160,6 +160,35 @@ def read_county_weather(county_fips):
     return df_county
 
 
+def read_county_weather_now(county_fips):
+    url_meta_ = "http://data.rcc-acis.org/StnMeta"
+
+    elems_list_ = ['maxt', 'mint', 'avgt', 'pcpn', 'snow', 'snwd', 'cdd', 'hdd', 'gdd']
+    meta_list_ = ['sids', 'name', 'state', 'll', 'elev', 'valid_daterange']
+
+    now = datetime.datetime.now()
+
+    end_year = now.year
+    end_month = now.month - 1
+    end_day = (datetime.datetime(now.year, now.month, 1) - datetime.timedelta(1)).day
+
+    if end_month < 11:
+        start_year = end_year - 1
+    else:
+        start_year = end_year
+
+    start_month = 11
+    start_day = 1
+
+    start_date_ = datetime.datetime(start_year, start_month, start_day)
+    end_date_ = datetime.datetime(end_year, end_month, end_day)
+
+    print(start_date_, end_date_)
+
+    df_county = get_county_weather(county_fips, url_meta_, start_date_, end_date_, elems_list_, meta_list_)
+    return df_county
+
+
 if __name__ == '__main__':
     url_meta = "http://data.rcc-acis.org/StnMeta"
 

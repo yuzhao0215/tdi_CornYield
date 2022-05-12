@@ -144,28 +144,29 @@ def get_ridge(county_fips_, start_month_=4, end_month_=11):
     return final_reg_, corn_yields_, data_list_
 
 
-# read corn yield for county 17001
-county_fips = "17001"
+if __name__ == '__main__':
+    # read corn yield for county 17001
+    county_fips = "17001"
 
-final_reg, corn_yields, data_list = get_ridge(county_fips, 4, 8)  # the last month is excluded
-X_train, X_test, y_train, y_test, X, y = data_list[0], data_list[1], data_list[2], data_list[3], data_list[4], data_list[5]
+    final_reg, corn_yields, data_list = get_ridge(county_fips, 4, 8)  # the last month is excluded
+    X_train, X_test, y_train, y_test, X, y = data_list[0], data_list[1], data_list[2], data_list[3], data_list[4], data_list[5]
 
 
-print(final_reg.best_params_)
-# print(final_reg.cv_results_['mean_train_score'])
-# print(final_reg.cv_results_['mean_test_score'])
+    print(final_reg.best_params_)
+    # print(final_reg.cv_results_['mean_train_score'])
+    # print(final_reg.cv_results_['mean_test_score'])
 
-plt.plot(X['Year'], y, 'o', color='k', label='actual yield')
-# plt.plot(X_test['Year'], y_test, 'o', color='k', label='test data')
-# plt.plot(X_train['Year'], y_train, 'o', color='b', label='training data')
+    plt.plot(X['Year'], y, 'o', color='k', label='actual yield')
+    # plt.plot(X_test['Year'], y_test, 'o', color='k', label='test data')
+    # plt.plot(X_train['Year'], y_train, 'o', color='b', label='training data')
 
-plt.plot(X['Year'], final_reg.predict(X), 'o-', color='#42a5f5ff', label='linear model prediction')
-plt.xlabel('Year')
-plt.ylabel('Corn Yield (BU/ACRE)')
-plt.legend()
+    plt.plot(X['Year'], final_reg.predict(X), 'o-', color='#42a5f5ff', label='linear model prediction')
+    plt.xlabel('Year')
+    plt.ylabel('Corn Yield (BU/ACRE)')
+    plt.legend()
 
-print("Training score: {}".format(final_reg.score(X_train, y_train)))
-print("Test score: {}".format(final_reg.score(X_test, y_test)))
+    print("Training score: {}".format(final_reg.score(X_train, y_train)))
+    print("Test score: {}".format(final_reg.score(X_test, y_test)))
 
-print(corn_yields.dtypes)
-plt.show()
+    print(corn_yields.dtypes)
+    plt.show()

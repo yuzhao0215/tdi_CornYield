@@ -1,3 +1,4 @@
 mlvenv/
 data/
 scraper/cache/
+model/cache/

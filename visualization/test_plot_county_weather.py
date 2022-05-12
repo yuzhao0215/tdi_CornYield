@@ -39,17 +39,17 @@ fig = make_subplots(specs=[[{"secondary_y": True}]])
 #     go.Scatter(x=df['date'], y=df['pcpn'], mode="lines", name="pcpn"), secondary_y=False
 # )
 
-fig.add_trace(
-    go.Scatter(x=df['date'], y=df['maxt'], mode="markers", name="maxt"), secondary_y=False
-)
+# fig.add_trace(
+#     go.Scatter(x=df['date'], y=df['maxt'], mode="markers", name="maxt"), secondary_y=False
+# )
 
 fig.add_trace(
     go.Scatter(x=df['date'], y=df['avgt'], mode="markers", name="avgt"), secondary_y=False
 )
 
-fig.add_trace(
-    go.Scatter(x=df['date'], y=df['mint'], mode="markers", name="mint"), secondary_y=False
-)
+# fig.add_trace(
+#     go.Scatter(x=df['date'], y=df['mint'], mode="markers", name="mint"), secondary_y=False
+# )
 
 fig.add_trace(
     go.Scatter(x=df['date'], y=df['Yield'], mode="lines", name="Yield"), secondary_y=True
