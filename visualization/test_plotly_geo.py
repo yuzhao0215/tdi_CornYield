@@ -47,8 +47,12 @@ corn_yield_df = corn_yield_df.merge(StateCountyDF, how='left', left_on=['State',
                                     right_on=["StateAbbr", "CountyName"])
 
 # drop duplicate column
-corn_yield_df.drop(columns=['State'])
+corn_yield_df.drop(columns=['CountyName', 'StateAbbr'], inplace=True)
 
+# REMOVE SOME DUPLICATE YEARS DATA
+corn_yield_df = corn_yield_df.groupby(['Year', 'CountyFIPS']).agg(min)
+
+corn_yield_df.reset_index(inplace=True)
 # save corn_yield_df after merging
 corn_yield_df.to_csv("../data/corn_yield_with_fips.csv", index=False)
 
@@ -167,7 +171,7 @@ def update_current_weather(state, county):
 
     county_fips = filtered["CountyFIPS"].min()
 
-    df_daily = read_county_weather_now(county_fips)
+    df_daily = read_county_weather_until_last_month(county_fips)
     actual_month = find_maximum_actual_month(df_daily)
     grow_month = actual_to_growing_month(actual_month)
 

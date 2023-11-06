@@ -266,7 +266,6 @@ def regression(data_list_, show=False):
 
     params_ = {
         'ridge__alpha': [0.01, 0.1, 1, 10, 100, 200, 500, 1000],
-        # 'imp__strategy': ['mean', 'median', 'most_frequent']
     }
 
     X_train_, X_test_, y_train_, y_test_, X_, y_ = data_list_[0], data_list_[1], data_list_[2], data_list_[3], data_list_[4], data_list_[5],
@@ -320,7 +319,7 @@ if __name__ == '__main__':
     #     models[m] = model
     #     dump(model, f'./cache/{m}.joblib')
 
-    df = read_county_weather_now(county_fips)
+    df = read_county_weather_until_last_month(county_fips)
     df, grow_month = preprocess(df, county_fips)
 
     actual_month = reverse_growing_month(grow_month)

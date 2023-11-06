@@ -127,7 +127,7 @@ def get_county_weather(county_fips, url_meta_, start_day_, end_day_, elems_list_
         dfs_county.append(df_station[elems_list_].astype(np.float64))
 
         # limit 50 stations per county
-        if sidex >= 50:
+        if sidex >= 5:
             break
 
     mean_county_longitude = pd.Series(county_longitude_list).astype(np.float64).mean()
@@ -160,7 +160,84 @@ def read_county_weather(county_fips):
     return df_county
 
 
-def read_county_weather_now(county_fips):
+def read_county_weather_until_yesterday(county_fips):
+    url_meta_ = "http://data.rcc-acis.org/StnMeta"
+
+    elems_list_ = ['maxt', 'mint', 'avgt', 'pcpn', 'snow', 'snwd', 'cdd', 'hdd', 'gdd']
+    meta_list_ = ['sids', 'name', 'state', 'll', 'elev', 'valid_daterange']
+
+    now = datetime.datetime.now()
+
+    end_year = now.year
+    end_month = now.month
+    end_day = now.day
+
+    if end_month < 11:
+        start_year = end_year - 1
+    else:
+        start_year = end_year
+
+    start_month = 11
+    start_day = 1
+
+    start_date_ = datetime.datetime(start_year, start_month, start_day)
+    end_date_ = datetime.datetime(end_year, end_month, end_day) - datetime.timedelta(1)
+
+    print(start_date_, end_date_)
+
+    df_county = get_county_weather(county_fips, url_meta_, start_date_, end_date_, elems_list_, meta_list_)
+    return df_county
+
+
+def read_county_weather_custom_year(county_fips, growing_year):
+    # here a year is a growing year, which means that if 2012 is given,
+    # the weather from Nov. 2011 to Oct. 2012 would be extracted, and the corn yield is extracted from Year 2012
+    url_meta_ = "http://data.rcc-acis.org/StnMeta"
+
+    elems_list_ = ['maxt', 'mint', 'avgt', 'pcpn', 'snow', 'snwd', 'cdd', 'hdd', 'gdd']
+    meta_list_ = ['sids', 'name', 'state', 'll', 'elev', 'valid_daterange']
+
+    end_year = growing_year
+    end_month = 10
+    end_day = 31
+
+    start_year = end_year - 1
+    start_month = 11
+    start_day = 1
+
+    start_date_ = datetime.datetime(start_year, start_month, start_day)
+    end_date_ = datetime.datetime(end_year, end_month, end_day)
+
+    df_county = get_county_weather(county_fips, url_meta_, start_date_, end_date_, elems_list_, meta_list_)
+    return df_county
+
+
+def read_county_weather_last_year(county_fips):
+    url_meta_ = "http://data.rcc-acis.org/StnMeta"
+
+    elems_list_ = ['maxt', 'mint', 'avgt', 'pcpn', 'snow', 'snwd', 'cdd', 'hdd', 'gdd']
+    meta_list_ = ['sids', 'name', 'state', 'll', 'elev', 'valid_daterange']
+
+    now = datetime.datetime.now()
+
+    end_year = now.year - 2
+    end_month = 10
+    end_day = 31
+
+    start_year = end_year - 1
+    start_month = 11
+    start_day = 1
+
+    start_date_ = datetime.datetime(start_year, start_month, start_day)
+    end_date_ = datetime.datetime(end_year, end_month, end_day)
+
+    print(start_date_, end_date_)
+
+    df_county = get_county_weather(county_fips, url_meta_, start_date_, end_date_, elems_list_, meta_list_)
+    return df_county
+
+
+def read_county_weather_until_last_month(county_fips):
     url_meta_ = "http://data.rcc-acis.org/StnMeta"
 
     elems_list_ = ['maxt', 'mint', 'avgt', 'pcpn', 'snow', 'snwd', 'cdd', 'hdd', 'gdd']
